@@ -1,9 +1,9 @@
-  <!doctype html>
+<!doctype html>
 <html lang="en" class="h-full">
  <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Fresh Basket</title>
+  <title>NGO Donation</title>
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <script src="/_sdk/element_sdk.js"></script>
   <style>
@@ -17,150 +17,82 @@
   <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
  </head>
  <body class="h-full">
-  <div class="h-full w-full overflow-auto flex flex-col">
-   <!-- Header -->
+  <div class="h-full w-full overflow-auto flex flex-col"><!-- Header -->
    <header class="sticky top-0 bg-white border-b px-4 py-3 z-40">
     <div class="text-lg font-bold">
-     🥬 Fresh Basket
+     ❤️ Help Foundation
     </div>
    </header><!-- Main -->
    <main class="flex-1 max-w-2xl mx-auto w-full px-4 py-4">
-    <h1 id="hero-tagline" class="text-2xl font-bold mb-1">Fresh Groceries</h1>
-    <p id="delivery-text" class="text-sm text-gray-600 mb-4">30 min delivery • Free above ₹499</p>
-    <div id="product-grid" class="grid grid-cols-2 gap-3"></div>
-    <p id="no-results" class="hidden text-center py-6 text-gray-500 text-sm">No items found.</p>
-   </main><!-- Cart Drawer -->
-   <div id="cart-overlay" class="fixed inset-0 bg-black/30 z-40 hidden" onclick="toggleCart()"></div>
-   <div id="cart-drawer" class="fixed top-0 right-0 h-full w-80 bg-white z-50 shadow-lg translate-x-full transition-transform flex flex-col">
-    <div class="flex items-center justify-between p-4 border-b">
-     <div class="font-bold">
-      Your Cart
-     </div><button onclick="toggleCart()" class="text-2xl">✕</button>
+    <h1 id="ngo-mission" class="text-2xl font-bold mb-2">Make a Difference Today</h1>
+    <p id="ngo-description" class="text-sm text-gray-600 mb-6">Your donation helps us serve communities in need</p>
+    <div class="bg-blue-50 border border-blue-200 rounded p-4 mb-6">
+     <h2 class="font-bold text-lg mb-3">Choose Donation Amount</h2>
+     <div class="grid grid-cols-2 gap-3" id="donation-options"></div>
     </div>
-    <div id="cart-items" class="flex-1 overflow-auto p-4 space-y-3"></div>
-    <div id="cart-footer" class="hidden p-4 border-t space-y-3">
-     <div class="flex justify-between font-bold text-lg"><span>Total</span> <span id="cart-total">₹0</span>
-     </div><button onclick="checkout()" class="w-full bg-green-700 text-white py-2 rounded font-bold text-sm">Checkout</button>
-    </div>
-    <div id="cart-empty" class="flex-1 flex flex-col items-center justify-center text-center">
-     <div class="text-4xl mb-2">
-      🛒
+    <div id="donation-info" class="hidden bg-green-50 border border-green-200 rounded p-4 text-center">
+     <div class="text-3xl mb-2">
+      🙏
      </div>
-     <p class="text-gray-600 text-sm">Cart is empty</p>
+     <p class="font-bold mb-1">Thank you for your generosity!</p>
+     <p class="text-sm text-gray-600">Your donation of <span id="donation-amount" class="font-bold">₹0</span> will help us continue our mission.</p><button onclick="completeDonation()" class="mt-3 w-full bg-blue-600 text-white py-2 rounded font-bold text-sm">Complete Donation</button>
     </div>
-   </div><!-- Toast -->
-   <div id="toast" class="fixed bottom-4 left-1/2 -translate-x-1/2 bg-green-700 text-white px-4 py-2 rounded text-sm z-50 opacity-0 pointer-events-none transition-opacity"></div>
+   </main><!-- Toast -->
+   <div id="toast" class="fixed bottom-4 left-1/2 -translate-x-1/2 bg-blue-600 text-white px-4 py-2 rounded text-sm z-50 opacity-0 pointer-events-none transition-opacity"></div>
   </div>
   <script>
-const products = [
-  { id: 1, name: "Bananas", price: 45, unit: "1 dozen", emoji: "🍌" },
-  { id: 2, name: "Tomatoes", price: 30, unit: "500g", emoji: "🍅" },
-  { id: 3, name: "Bread", price: 55, unit: "400g", emoji: "🍞" },
-  { id: 4, name: "Eggs", price: 85, unit: "12 pcs", emoji: "🥚" },
-  { id: 5, name: "Rice", price: 180, unit: "1 kg", emoji: "🍚" },
-  { id: 6, name: "Milk", price: 28, unit: "500ml", emoji: "🥛" },
-  { id: 7, name: "Apples", price: 160, unit: "1 kg", emoji: "🍎" },
-  { id: 8, name: "Spinach", price: 25, unit: "250g", emoji: "🥬" },
+const donations = [
+  { id: 1, amount: 100, cause: "Feed a Child" },
+  { id: 2, amount: 250, cause: "School Supplies" },
+  { id: 3, amount: 500, cause: "Medical Kit" },
+  { id: 4, amount: 1000, cause: "Education Fund" },
 ];
 
-let cart = {};
+let selectedDonation = null;
 
-function renderProducts() {
-  const grid = document.getElementById('product-grid');
+function renderDonations() {
+  const grid = document.getElementById('donation-options');
   grid.innerHTML = '';
-  products.forEach(p => {
-    const qty = cart[p.id] || 0;
-    const card = document.createElement('div');
-    card.className = 'bg-white rounded border p-3';
-    card.innerHTML = `
-      <div class="text-3xl text-center mb-2">${p.emoji}</div>
-      <div class="text-sm font-bold">${p.name}</div>
-      <div class="text-xs text-gray-500 mb-2">${p.unit}</div>
-      <div class="flex items-center justify-between">
-        <span class="font-bold text-green-700">₹${p.price}</span>
-        ${qty === 0 ? `<button onclick="addToCart(${p.id})" class="bg-green-700 text-white px-2 py-1 rounded text-xs font-bold">Add</button>`
-          : `<div class="flex items-center gap-1"><button class="qty-btn bg-gray-200" onclick="changeQty(${p.id},-1)">−</button><span class="w-6 text-center text-sm font-bold">${qty}</span><button class="qty-btn bg-green-700 text-white" onclick="changeQty(${p.id},1)">+</button></div>`}
-      </div>
-    `;
-    grid.appendChild(card);
+  donations.forEach(d => {
+    const btn = document.createElement('button');
+    btn.className = selectedDonation === d.id ? 'bg-blue-600 text-white border-2 border-blue-600' : 'bg-white border-2 border-gray-300 text-gray-800 hover:border-blue-400';
+    btn.classList.add('p-3', 'rounded', 'font-bold', 'text-sm', 'transition');
+    btn.innerHTML = `<div class="text-lg">₹${d.amount}</div><div class="text-xs mt-1">${d.cause}</div>`;
+    btn.onclick = () => selectDonation(d.id, d.amount);
+    grid.appendChild(btn);
   });
 }
 
-function addToCart(id) { cart[id] = 1; update(); }
-function changeQty(id, d) { cart[id] = (cart[id] || 0) + d; if (cart[id] <= 0) delete cart[id]; update(); }
-function update() { renderProducts(); renderCart(); updateCount(); }
-function updateCount() { document.getElementById('cart-count').textContent = Object.values(cart).reduce((a, b) => a + b, 0); }
-
-function renderCart() {
-  const items = document.getElementById('cart-items');
-  const footer = document.getElementById('cart-footer');
-  const empty = document.getElementById('cart-empty');
-  const ids = Object.keys(cart);
-  
-  if (ids.length === 0) {
-    items.innerHTML = '';
-    footer.classList.add('hidden');
-    empty.classList.remove('hidden');
-    return;
-  }
-  
-  empty.classList.add('hidden');
-  footer.classList.remove('hidden');
-  items.innerHTML = '';
-  let total = 0;
-  
-  ids.forEach(id => {
-    const p = products.find(x => x.id == id);
-    const qty = cart[id];
-    total += p.price * qty;
-    const row = document.createElement('div');
-    row.className = 'flex items-center gap-3 p-3 bg-gray-50 rounded border';
-    row.innerHTML = `
-      <span class="text-2xl">${p.emoji}</span>
-      <div class="flex-1 text-sm">
-        <div class="font-bold">${p.name}</div>
-        <div class="text-gray-500">₹${p.price} × ${qty}</div>
-      </div>
-      <div class="flex items-center gap-1">
-        <button class="qty-btn bg-gray-200" onclick="changeQty(${p.id},-1)">−</button>
-        <span class="w-5 text-center text-sm font-bold">${qty}</span>
-        <button class="qty-btn bg-green-700 text-white" onclick="changeQty(${p.id},1)">+</button>
-      </div>
-    `;
-    items.appendChild(row);
-  });
-  
-  document.getElementById('cart-total').textContent = '₹' + total;
+function selectDonation(id, amount) {
+  selectedDonation = id;
+  document.getElementById('donation-amount').textContent = '₹' + amount;
+  document.getElementById('donation-info').classList.remove('hidden');
+  renderDonations();
 }
 
-let cartOpen = false;
-function toggleCart() {
-  cartOpen = !cartOpen;
-  document.getElementById('cart-drawer').style.transform = cartOpen ? 'translateX(0)' : 'translateX(100%)';
-  document.getElementById('cart-overlay').classList.toggle('hidden', !cartOpen);
-}
-
-function checkout() {
-  if (Object.keys(cart).length === 0) return;
-  cart = {};
-  update();
-  toggleCart();
+function completeDonation() {
+  if (!selectedDonation) return;
+  const donation = donations.find(d => d.id === selectedDonation);
+  selectedDonation = null;
+  document.getElementById('donation-info').classList.add('hidden');
+  renderDonations();
+  
   const toast = document.getElementById('toast');
-  toast.textContent = '✓ Order placed! 30 mins delivery';
+  toast.textContent = '✓ Thank you! Your donation of ₹' + donation.amount + ' has been received.';
   toast.style.opacity = '1';
-  setTimeout(() => toast.style.opacity = '0', 2500);
+  setTimeout(() => toast.style.opacity = '0', 3000);
 }
 
 const defaultConfig = {
-  store_name: "Fresh Basket",
-  hero_tagline: "Fresh Groceries",
-  delivery_text: "30 min delivery • Free above ₹499"
+  ngo_name: "Help Foundation",
+  ngo_mission: "Make a Difference Today",
+  ngo_description: "Your donation helps us serve communities in need"
 };
 
 function applyConfig(config) {
   const c = { ...defaultConfig, ...config };
-  document.getElementById('hero-tagline').textContent = c.hero_tagline;
-  document.getElementById('delivery-text').textContent = c.delivery_text;
+  document.getElementById('ngo-mission').textContent = c.ngo_mission;
+  document.getElementById('ngo-description').textContent = c.ngo_description;
 }
 
 window.elementSdk.init({
@@ -168,13 +100,13 @@ window.elementSdk.init({
   onConfigChange: async (config) => applyConfig(config),
   mapToCapabilities: () => ({ recolorables: [], borderables: [], fontEditable: undefined, fontSizeable: undefined }),
   mapToEditPanelValues: (config) => new Map([
-    ["store_name", config.store_name || defaultConfig.store_name],
-    ["hero_tagline", config.hero_tagline || defaultConfig.hero_tagline],
-    ["delivery_text", config.delivery_text || defaultConfig.delivery_text]
+    ["ngo_name", config.ngo_name || defaultConfig.ngo_name],
+    ["ngo_mission", config.ngo_mission || defaultConfig.ngo_mission],
+    ["ngo_description", config.ngo_description || defaultConfig.ngo_description]
   ])
 });
 
-renderProducts();
+renderDonations();
   </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9f252144070920fe',t:'MTc3NzIwMTcxMS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9f25263e13b820fe',t:'MTc3NzIwMTkxNC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
