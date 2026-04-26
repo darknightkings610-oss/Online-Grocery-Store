@@ -3,13 +3,13 @@
  <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Disaster Help</title>
+  <title>Freelancing Platform</title>
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <script src="/_sdk/element_sdk.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body { height: 100%; }
-    body { font-family: system-ui, -apple-system, sans-serif; background: #fff5f5; }
+    body { font-family: system-ui, -apple-system, sans-serif; background: #f9fafb; }
   </style>
   <style>body { box-sizing: border-box; }</style>
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js" type="text/javascript"></script>
@@ -17,74 +17,72 @@
  </head>
  <body class="h-full">
   <div class="h-full w-full overflow-auto flex flex-col">
-   <header class="sticky top-0 bg-red-600 text-white px-4 py-3 z-40">
-    <div class="text-lg font-bold">
-     🆘 <span id="org-header">Disaster Relief</span>
+   <header class="sticky top-0 bg-white text-gray-900 px-4 py-4 z-40 border-b border-gray-200">
+    <div class="max-w-2xl mx-auto flex justify-between items-center">
+     <div class="text-xl font-bold">
+      💼 <span id="platform-name">WorkHub</span>
+     </div>
+     <div class="text-sm text-gray-600">
+      Sign In
+     </div>
     </div>
    </header>
    <main class="flex-1 max-w-2xl mx-auto w-full px-4 py-6">
-    <div class="bg-red-100 border-l-4 border-red-600 p-4 mb-6">
-     <h1 id="emergency-title" class="text-2xl font-bold text-red-800 mb-2">Emergency Response</h1>
-     <p id="urgent-message" class="text-red-700">We need your immediate support to help affected communities</p>
+    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-8 mb-8 border border-blue-100">
+     <h1 id="platform-tagline" class="text-3xl font-bold text-gray-900 mb-2">Connect with Top Talent</h1>
+     <p class="text-gray-600 mb-6">Find freelancers for your projects or offer your services to businesses</p><button id="cta-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-lg transition">Get Started</button>
     </div>
-    <div class="bg-white rounded p-4 mb-6 border border-gray-200">
-     <h2 class="font-bold text-lg mb-4">Donate Now</h2>
-     <div class="grid grid-cols-2 gap-3" id="donation-options"></div>
-    </div>
-    <div id="success-msg" class="hidden bg-green-100 border border-green-400 rounded p-4 text-center">
-     <div class="text-3xl mb-2">
-      ✓
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+     <div class="bg-white rounded-lg p-5 border border-gray-200 hover:shadow-md transition">
+      <div class="text-3xl mb-2">
+       👨‍💼
+      </div>
+      <h3 class="font-bold text-lg mb-1">For Clients</h3>
+      <p class="text-sm text-gray-600">Post projects and hire skilled freelancers</p>
      </div>
-     <p class="font-bold text-green-800">Thank you for helping!</p>
-     <p class="text-sm text-green-700 mt-1">Your contribution will save lives.</p>
+     <div class="bg-white rounded-lg p-5 border border-gray-200 hover:shadow-md transition">
+      <div class="text-3xl mb-2">
+       💻
+      </div>
+      <h3 class="font-bold text-lg mb-1">For Freelancers</h3>
+      <p class="text-sm text-gray-600">Browse jobs and grow your career</p>
+     </div>
+    </div>
+    <div class="bg-white rounded-lg p-6 border border-gray-200 mb-6">
+     <h2 class="font-bold text-lg mb-4">Featured Projects</h2>
+     <div id="projects-list" class="space-y-3"></div>
     </div>
    </main>
   </div>
   <script>
-const helps = [
-  { id: 1, amount: 100, desc: "Emergency Food" },
-  { id: 2, amount: 250, desc: "Medical Aid" },
-  { id: 3, amount: 500, desc: "Shelter Kit" },
-  { id: 4, amount: 1000, desc: "Complete Aid" },
+const projects = [
+  { id: 1, title: "Build E-commerce Website", budget: "$500-1000", skills: "React, Node.js" },
+  { id: 2, title: "Mobile App UI Design", budget: "$300-600", skills: "Figma, UI/UX" },
+  { id: 3, title: "WordPress Blog Setup", budget: "$200-400", skills: "WordPress" },
 ];
 
-let selected = null;
-
-function render() {
-  const grid = document.getElementById('donation-options');
-  grid.innerHTML = '';
-  helps.forEach(h => {
-    const btn = document.createElement('button');
-    btn.className = selected === h.id ? 'bg-red-600 text-white' : 'bg-gray-100 text-gray-800 hover:bg-gray-200';
-    btn.classList.add('p-4', 'rounded', 'font-bold', 'text-sm', 'transition');
-    btn.innerHTML = `<div class="text-xl">₹${h.amount}</div><div class="text-xs mt-1">${h.desc}</div>`;
-    btn.onclick = () => donate(h.id);
-    grid.appendChild(btn);
-  });
-}
-
-function donate(id) {
-  selected = id;
-  render();
-  document.getElementById('success-msg').classList.remove('hidden');
-  setTimeout(() => {
-    selected = null;
-    render();
-    document.getElementById('success-msg').classList.add('hidden');
-  }, 2500);
+function renderProjects() {
+  const list = document.getElementById('projects-list');
+  list.innerHTML = projects.map(p => `
+    <div class="bg-gray-50 p-4 rounded border border-gray-200 hover:bg-gray-100 transition cursor-pointer">
+      <h3 class="font-bold text-gray-900">${p.title}</h3>
+      <p class="text-sm text-gray-600 mt-1">${p.skills}</p>
+      <p class="text-sm font-bold text-blue-600 mt-2">${p.budget}</p>
+    </div>
+  `).join('');
 }
 
 const defaultConfig = {
-  org_name: "Disaster Relief",
-  emergency_title: "Emergency Response",
-  urgent_message: "We need your immediate support to help affected communities"
+  platform_name: "WorkHub",
+  platform_tagline: "Connect with Top Talent",
+  cta_button: "Get Started"
 };
 
 function applyConfig(config) {
   const c = { ...defaultConfig, ...config };
-  document.getElementById('org-header').textContent = c.org_name;
-  document.getElementById('emergency-title').textContent = c.emergency_title;
-  document.getElementById('urgent-message').textContent = c.urgent_message;
+  document.getElementById('platform-name').textContent = c.platform_name;
+  document.getElementById('platform-tagline').textContent = c.platform_tagline;
+  document.getElementById('cta-btn').textContent = c.cta_button;
 }
 
 window.elementSdk.init({
@@ -92,13 +90,13 @@ window.elementSdk.init({
   onConfigChange: async (config) => applyConfig(config),
   mapToCapabilities: () => ({ recolorables: [], borderables: [], fontEditable: undefined, fontSizeable: undefined }),
   mapToEditPanelValues: (config) => new Map([
-    ["org_name", config.org_name || defaultConfig.org_name],
-    ["emergency_title", config.emergency_title || defaultConfig.emergency_title],
-    ["urgent_message", config.urgent_message || defaultConfig.urgent_message]
+    ["platform_name", config.platform_name || defaultConfig.platform_name],
+    ["platform_tagline", config.platform_tagline || defaultConfig.platform_tagline],
+    ["cta_button", config.cta_button || defaultConfig.cta_button]
   ])
 });
 
-render();
+renderProjects();
   </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9f252abb542220fe',t:'MTc3NzIwMjA5OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9f252fcc977620fe',t:'MTc3NzIwMjMwNi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
